@@ -12,7 +12,7 @@ The event will be invoked with the application's `config`, through which you can
 Include a SPECIFIC container package in your `environment.ini` file (or main config)
 
 	# development.ini
-    pyramid.includes = pyramid_postfork.containers.uwsgi
+    pyramid.includes = pyramid_forksafe.containers.uwsgi
 
 Define a GENERIC hook.  
 
@@ -26,7 +26,7 @@ Define a GENERIC hook.
 You can even import the generic package in your `environment.ini` file (or main config), and this will try to enable services
 
 	# development.ini
-    pyramid.includes = pyramid_postfork
+    pyramid.includes = pyramid_forksafe
 
 
 ## Why?
