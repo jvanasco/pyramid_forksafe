@@ -1,4 +1,4 @@
-"""pyramid_https_session_redis installation script.
+"""pyramid_forksafe installation script.
 """
 import os
 
@@ -18,21 +18,21 @@ requires = [
 
 setup(
     name="pyramid_forksafe",
+    author="Jonathan Vanasco",
+    author_email="jonathan@findmeon.com",
+    url="https://github.com/jvanasco/pyramid_forksafe",
     version="0.0.1",
     description="provides for a unified fork events",
     long_description=README,
+    keywords="web pyramid fork",
+    license="MIT",
     classifiers=[
         "Intended Audience :: Developers",
         "Framework :: Pyramid",
         "Programming Language :: Python",
         "License :: OSI Approved :: MIT License",
     ],
-    keywords="web pyramid fork",
-    packages=['pyramid_forksafe'],
-    author="Jonathan Vanasco",
-    author_email="jonathan@findmeon.com",
-    url="https://github.com/jvanasco/pyramid_forksafe",
-    license="MIT",
+    packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
     tests_require = requires,
