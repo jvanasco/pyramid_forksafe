@@ -21,7 +21,7 @@ setup(
     author="Jonathan Vanasco",
     author_email="jonathan@findmeon.com",
     url="https://github.com/jvanasco/pyramid_forksafe",
-    version="0.0.1",
+    version="0.0.2",
     description="provides for a unified fork events",
     long_description=README,
     keywords="web pyramid fork",

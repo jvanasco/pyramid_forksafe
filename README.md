@@ -7,7 +7,7 @@ This allows you to write generic fork routines, and easily swap containers durin
 
 The event will be invoked with the application's `config`, through which you can access `config.registry` and `config.registry.settings`
 
-## Usage
+## Usage - Generic
 
 Include a SPECIFIC container package in your `environment.ini` file (or main config)
 
@@ -29,6 +29,37 @@ You can even import the generic package in your `environment.ini` file (or main 
     pyramid.includes = pyramid_forksafe
 
 
+## Usage - uWSGI
+
+simply include the package and uwsgi will be automatically enabled:
+
+in your `__init__.py`:
+
+    config.include('pyramid_forksafe')
+
+or your `{environment}.ini`
+
+    pyramid.includes = pyramid_forksafe
+
+## Usage - gunicorn
+
+`gunicorn` will need some hooks imported into it's python configuration file
+
+assuming you invoke gunicorn like this:
+
+	gunicorn --paste production.ini -c config.py
+
+then your `config.py` just needs to import the container hooks:
+
+    from pyramid_forksafe.containers.gunicorn import (
+        pre_fork,
+        post_fork,
+        post_worker_init,
+    )
+
+those hooks are written to the `gunicorn` api, and will invoke the notification
+
+
 ## Why?
 
 Pyramid is Thread Safe, which is different than Fork Safe.
@@ -44,7 +75,7 @@ In some situations, you may need the registry and/or settings during postfork ac
 
 ## Container Support
 
-Currently only `uwsgi` is supported.   Pull requests are welcome.
+Currently `uwsgi` and `gunicorn` are supported.   Celery is planned.  Pull requests are welcome.
 
 
 ## Status

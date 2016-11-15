@@ -19,4 +19,5 @@ def includeme(config):
     @postfork
     def post_fork_hook():
         log.debug("ApplicationPostFork(uwsgi) - notify")
-        config.registry.notify(ApplicationPostFork(config))
+        registry = config.registry
+        registry.notify(ApplicationPostFork(registry))
