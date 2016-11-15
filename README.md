@@ -79,11 +79,10 @@ Currently `uwsgi` and `gunicorn` are supported with the hooks outlined below.   
 
 | container | pyramid\_forksafe event      | container hook |
 |-----------|-----------------------------|------|
-| uWSGI     | `ApplicationPostFork`       | ['postfork'](http://uwsgi-docs.readthedocs.io/en/latest/PythonDecorators.html#uwsgidecorators.postfork) |
+| uWSGI     | `ApplicationPostFork`       | [`postfork`](http://uwsgi-docs.readthedocs.io/en/latest/PythonDecorators.html#uwsgidecorators.postfork) |
 | gunicorn  | `ApplicationPostFork`       | [`post_fork`](http://docs.gunicorn.org/en/latest/settings.html#post-fork) |
 | gunicorn  | `ApplicationPreFork`        | [`pre_fork`](http://docs.gunicorn.org/en/latest/settings.html#pre-fork) |
 | gunicorn  | `ApplicationPostWorkerInit` | [`post_worker_init`](http://docs.gunicorn.org/en/latest/settings.html#post-worker-init) |
-
 
 
 ## Status
