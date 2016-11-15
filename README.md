@@ -1,32 +1,45 @@
 pyramid_forksafe
 ================
 
-This package creates standardized Pyramid events for forking hooks in popular containers.
+This package creates standardized Pyramid events for various forking hooks in popular deployment containers.
 
-This allows you to write generic fork routines, and easily swap containers during deployment or development.
+Using `pyramid_forksafe` allows a developer to write generic routines for forking events, allowing them to easily swap containers during deployment or development.
 
-The event will be invoked with the application's `config`, through which you can access `config.registry` and `config.registry.settings`
+Each event is invoked with the application's `registry`, through which one can access `registry.settings`
+
+## Why?
+
+Pyramid is Thread Safe, which is different than Fork Safe.
+
+Several popular libraries are not fork-safe:
+
+* SqlAlchemy's connection pool is not fork-safe.  Your deployment *must* call `engine.dispose()` after a fork.
+* PyMongo's connections and locks are not fork-safe.  The entire client must be replaced after a fork.
+* PyCrypto's Random generator will only work correctly if Random.atfork() is called.
+
+In some situations, a developer may need to access the registry and/or settings during postfork actions. Getting this information into a custom hook can be a hassle, as one will need to write against each container's API instead of Pyramid's. 
+
 
 ## Usage - Generic
 
-Include a SPECIFIC container package in your `environment.ini` file (or main config)
+Define a GENERIC hook.  
+
+    def post_fork_hook(_registry):
+        cyrpto_atfork()
+        models.engine.dispose(_registry)
+    config.add_subscriber(post_fork_hook, ApplicationPostFork)
+
+You can import the generic package in your `environment.ini` file (or main config), and this will try to enable services if possible:
+
+	# development.ini
+    pyramid.includes = pyramid_forksafe
+
+or you may wish to import a SPECIFIC container package in your `environment.ini` file (or main config)
 
 	# development.ini
     pyramid.includes = pyramid_forksafe.containers.uwsgi
 
-Define a GENERIC hook.  
-
-    def post_fork_hook(config):
-        cyrpto_atfork()
-        models.engine.dispose(config)
-
-    config.add_subscriber(post_fork_hook, ApplicationPostFork)
-
-
-You can even import the generic package in your `environment.ini` file (or main config), and this will try to enable services
-
-	# development.ini
-    pyramid.includes = pyramid_forksafe
+Currently, this approach only works for `uWSGI`.  `gunicorn` requires another approach.
 
 
 ## Usage - uWSGI
@@ -59,23 +72,18 @@ then your `config.py` just needs to import the container hooks:
 
 those hooks are written to the `gunicorn` api, and will invoke the notification
 
-
-## Why?
-
-Pyramid is Thread Safe, which is different than Fork Safe.
-
-Several popular libraries are not fork-safe:
-
-* SqlAlchemy's connection pool is not fork-safe.  Your deployment *must* call `engine.dispose()` after a fork.
-* PyMongo's connections and locks are not fork-safe.  The entire client must be replaced after a fork.
-* PyCrypto's Random generator will only work correctly if Random.atfork() is called.
-
-In some situations, you may need the registry and/or settings during postfork actions; getting this information into a custom hook can be a hassle - and you may need to write against the container's API instead of Pyramid. 
-
-
 ## Container Support
 
-Currently `uwsgi` and `gunicorn` are supported.   Celery is planned.  Pull requests are welcome.
+Currently `uwsgi` and `gunicorn` are supported with the hooks outlined below.   Celery is planned.  Pull requests are welcome.
+
+
+| container | pyramid\_forksafe event      | container hook |
+|-----------|-----------------------------|------|
+| uWSGI     | `ApplicationPostFork`       | ['postfork'](http://uwsgi-docs.readthedocs.io/en/latest/PythonDecorators.html#uwsgidecorators.postfork) |
+| gunicorn  | `ApplicationPostFork`       | [`post_fork`](http://docs.gunicorn.org/en/latest/settings.html#post-fork) |
+| gunicorn  | `ApplicationPreFork`        | [`pre_fork`](http://docs.gunicorn.org/en/latest/settings.html#pre-fork) |
+| gunicorn  | `ApplicationPostWorkerInit` | [`post_worker_init`](http://docs.gunicorn.org/en/latest/settings.html#post-worker-init) |
+
 
 
 ## Status
