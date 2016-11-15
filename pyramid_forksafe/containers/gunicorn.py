@@ -24,7 +24,7 @@ def post_fork(server, worker):
     registry = server.app.wsgi().registry
     registry.notify(ApplicationPostFork(registry))
 
-    
+
 def post_worker_init(worker):
     log.debug("ApplicationPostWorkerInit(gunicorn) - post_worker_init")
     registry = worker.app.wsgi().registry
