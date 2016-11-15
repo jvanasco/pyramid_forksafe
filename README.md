@@ -19,6 +19,8 @@ Several popular libraries are not fork-safe:
 
 In some situations, a developer may need to access the registry and/or settings during postfork actions. Getting this information into a custom hook can be a hassle, as one will need to write against each container's API instead of Pyramid's. 
 
+This blog posting describes the difference between fork-safe and thread-safe pretty well  http://www.dctrwatson.com/2010/09/python-thread-safe-does-not-mean-fork-safe/
+
 
 ## Usage - Generic
 
