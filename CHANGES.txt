@@ -1,5 +1,6 @@
 2017.03.02
 - v0.0.3
+- uwsgi is now wrapped in a try, this is for situations where commandline pyramid is bootstrapping an environment off the production configuration file.
 
 2016.11.17
 - v0.0.2
