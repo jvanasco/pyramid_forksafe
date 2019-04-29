@@ -1,9 +1,10 @@
-from zope.interface import (
-    implementer,
-    )
+from __future__ import print_function
 
+# pypi
+from zope.interface import implementer
 
-from pyramid_forksafe.interfaces import (
+# local
+from .interfaces import (
     IApplicationPostFork,
     IApplicationPreFork,
     IApplicationPostWorkerInit,
@@ -28,6 +29,7 @@ class ApplicationPostFork(object):
     :class:`pyramid_forksafe.interfaces.IApplicationPostFork` interface.
     """
     def __init__(self, registry):
+        print("ApplicationPostFork")
         self.registry = registry
 
 
@@ -45,6 +47,7 @@ class ApplicationPreFork(object):
     :class:`pyramid_forksafe.interfaces.IApplicationPreFork` interface.
     """
     def __init__(self, registry):
+        print("ApplicationPreFork")
         self.registry = registry
 
 
@@ -62,4 +65,5 @@ class ApplicationPostWorkerInit(object):
     :class:`pyramid_forksafe.interfaces.IApplicationPostWorkerInit` interface.
     """
     def __init__(self, registry):
+        print("ApplicationPostWorkerInit")
         self.registry = registry

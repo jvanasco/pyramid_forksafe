@@ -1,3 +1,11 @@
+2019.04.29
+- v0.1.0
+- python3
+
+2017.05.08
+- v0.0.4
+- changed logging text to be more descriptive.
+
 2017.03.02
 - v0.0.3
 - uwsgi is now wrapped in a try, this is for situations where commandline pyramid is bootstrapping an environment off the production configuration file.

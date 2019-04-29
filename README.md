@@ -89,4 +89,7 @@ Currently `uwsgi` and `gunicorn` are supported with the hooks outlined below.   
 
 ## Status
 
+2019.04.29 - Python3 Support. This has been production safe for uWSGI for a while now.
 2016.11.09 - this is experimental
+
+

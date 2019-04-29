@@ -2,6 +2,9 @@ import logging
 log = logging.getLogger(__name__)
 
 
+__VERSION__ = '0.1.0'
+
+
 # ==============================================================================
 
 
@@ -17,8 +20,9 @@ def includeme(config):
 
     try:
         # import uwsgi
+        log.debug("attempting to autoconfigure uwsgi")
+        log.debug("- uwsgi available")
         import pyramid_forksafe.containers.uwsgi
         pyramid_forksafe.containers.uwsgi.includeme(config)
-        log.debug("- uwsgi configured")
     except:
         log.debug("- uwsgi not available")
