@@ -1,0 +1,6 @@
+<%! import pprint %>
+<p>
+This panel should always show an error, as the debugtoolbar is not compatible with forking servers.
+</p>
+
+<pre>${pprint.pformat(registry_data)}</pre>

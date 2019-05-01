@@ -1,3 +1,7 @@
+2019.05.01
+- v0.1.2
+- added debugtoolbar
+
 2019.04.30
 - v0.1.1
 - added some new logging into the application registry

@@ -126,7 +126,20 @@ under uWSGI properly configured, it will look like this:
 	  set([('containers.uwsgi.post_fork_hook', 'ApplicationPostFork')]))]
 
 
+## Debugtoolbar support
+
+to enable the debugtoobar support, you can configure your `development.ini` with:
+
+	debugtoolbar.includes = pyramid_forksafe.debugtoolbar
+
+The toolbar just shows the debug object `request.registry.pyramid_forksafe` on the toolbar
+
+This should always show an error, because the debugtoolbar does not run under forking servers.
+
+
+
 ## Status
+2019.05.01 - debugtoolbar
 2019.04.30 - debug object
 2019.04.29 - Python3 Support. This has been production safe for uWSGI for a while now.
 2016.11.09 - this is experimental
