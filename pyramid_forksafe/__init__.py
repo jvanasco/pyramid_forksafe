@@ -2,7 +2,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-__VERSION__ = '0.1.0'
+__VERSION__ = '0.1.1'
 
 
 # ==============================================================================
@@ -16,13 +16,25 @@ def includeme(config):
 
     gunicorn must run with the hooks enabled in it's own startup
     """
-    log.debug("Trying to auto-configure")
-
+    log.debug("attempting auto-configure")
+    config.registry.pyramid_forksafe = {'status': 'attempting auto-configure',
+                                        'autoconfigure.log': [],
+                                        'environment': None,
+                                        'executed_hooks': set([]),
+                                        }
+    # uWSGI autoconfiguration
     try:
-        # import uwsgi
-        log.debug("attempting to autoconfigure uwsgi")
-        log.debug("- uwsgi available")
+        log.debug("attempting to autoconfigure uWSGI")
         import pyramid_forksafe.containers.uwsgi
         pyramid_forksafe.containers.uwsgi.includeme(config)
-    except:
-        log.debug("- uwsgi not available")
+
+        log.debug("- uWSGI no error")
+    except Exception as exc:
+        config.registry.pyramid_forksafe['autoconfigure.log'].append('uWSGI error: %s' % exc)
+        config.registry.pyramid_forksafe['status'] = 'uWSGI error'
+        log.error("- uWSGI EXCEPTION | %s", exc)
+
+
+__all__ = ('__VERSION__',
+           'includeme',
+           )

@@ -56,6 +56,11 @@ or your `{environment}.ini`
 
     pyramid.includes = pyramid_forksafe
 
+important note:
+
+you MUST run uWSGI with the `--master` argument.
+
+
 ## Usage - gunicorn
 
 `gunicorn` will need some hooks imported into it's python configuration file
@@ -74,9 +79,15 @@ then your `config.py` just needs to import the container hooks:
 
 those hooks are written to the `gunicorn` api, and will invoke the notification
 
+you can also update the debug tool by running after configuration:
+
+	from pyramid_forksafe.containers.gunicorn import mark_configured
+	mark_configured(config.registry)
+
+
 ## Container Support
 
-Currently `uwsgi` and `gunicorn` are supported with the hooks outlined below.   Celery is planned.  Pull requests are welcome.
+Currently `uwsgi` and `gunicorn` are supported with the hooks outlined below.   Celery integration is planned.  Pull requests are very welcome.
 
 
 | container | pyramid\_forksafe event      | container hook |
@@ -87,9 +98,35 @@ Currently `uwsgi` and `gunicorn` are supported with the hooks outlined below.   
 | gunicorn  | `ApplicationPostWorkerInit` | [`post_worker_init`](http://docs.gunicorn.org/en/latest/settings.html#post-worker-init) |
 
 
-## Status
+## The Debug Object
 
+including this package will put an informative dict into `registry.pyramid_forksafe`
+
+under waitress, it will look like this:
+
+	[('status', 'attempting auto-configure'),
+	 ('environment', None),
+	 ('autoconfigure.log', ['uWSGI not available']),
+	 ('executed_hooks', set([]))]
+
+under uWSGI without master, it will look like this:
+
+	[('status', 'uWSGI error'),
+	 ('environment', None),
+	 ('autoconfigure.log',
+	  ['uWSGI error: you have to enable the uWSGI master process to use this module']),
+	 ('executed_hooks', set([]))]
+
+under uWSGI properly configured, it will look like this:
+
+	[('status', 'uWSGI hook configured'),
+	 ('environment', 'uWSGI'),
+	 ('autoconfigure.log', ['uWSGI available', 'uWSGI hook configured']),
+	 ('executed_hooks',
+	  set([('containers.uwsgi.post_fork_hook', 'ApplicationPostFork')]))]
+
+
+## Status
+2019.04.30 - debug object
 2019.04.29 - Python3 Support. This has been production safe for uWSGI for a while now.
 2016.11.09 - this is experimental
-
-

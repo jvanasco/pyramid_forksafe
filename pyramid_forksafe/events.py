@@ -67,3 +67,9 @@ class ApplicationPostWorkerInit(object):
     def __init__(self, registry):
         print("ApplicationPostWorkerInit")
         self.registry = registry
+
+
+__all__ = ('ApplicationPostFork',
+           'ApplicationPreFork',
+           'ApplicationPostWorkerInit',
+           )

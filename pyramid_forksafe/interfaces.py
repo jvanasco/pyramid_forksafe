@@ -35,3 +35,9 @@ class IApplicationPostWorkerInit(Interface):
     :class:`pyramid_forksafe.events.ApplicationPostFork` for more information.
     """
     registry = Attribute('Forked application registry')
+
+
+__all__ = ('IApplicationPostFork',
+           'IApplicationPreFork',
+           'IApplicationPostWorkerInit',
+           )
