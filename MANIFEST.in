@@ -1,0 +1,5 @@
+include README.md
+include pyramid_forksafe/debugtoolbar/__init__.py
+include pyramid_forksafe/debugtoolbar/panels/__init__.py
+include pyramid_forksafe/debugtoolbar/panels/forksafe.py
+include pyramid_forksafe/debugtoolbar/panels/templates/forksafe.dbtmako
