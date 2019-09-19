@@ -28,6 +28,7 @@ class ApplicationPostFork(object):
     This class implements the
     :class:`pyramid_forksafe.interfaces.IApplicationPostFork` interface.
     """
+
     def __init__(self, registry):
         print("ApplicationPostFork")
         self.registry = registry
@@ -46,6 +47,7 @@ class ApplicationPreFork(object):
     This class implements the
     :class:`pyramid_forksafe.interfaces.IApplicationPreFork` interface.
     """
+
     def __init__(self, registry):
         print("ApplicationPreFork")
         self.registry = registry
@@ -64,12 +66,10 @@ class ApplicationPostWorkerInit(object):
     This class implements the
     :class:`pyramid_forksafe.interfaces.IApplicationPostWorkerInit` interface.
     """
+
     def __init__(self, registry):
         print("ApplicationPostWorkerInit")
         self.registry = registry
 
 
-__all__ = ('ApplicationPostFork',
-           'ApplicationPreFork',
-           'ApplicationPostWorkerInit',
-           )
+__all__ = ("ApplicationPostFork", "ApplicationPreFork", "ApplicationPostWorkerInit")

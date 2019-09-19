@@ -11,23 +11,16 @@ try:
     README = open(os.path.join(here, "README.md")).read()
     README = README.split("\n\n", 1)[0] + "\n"
 except:
-    README = ''
+    README = ""
 
 # store version in the init.py
-with open(os.path.join(os.path.dirname(__file__),
-                       'pyramid_forksafe',
-                       '__init__.py'
-                       )
-          ) as v_file:
-    VERSION = re.compile(
-        r".*__VERSION__ = '(.*?)'",
-        re.S).match(v_file.read()).group(1)
+with open(
+    os.path.join(os.path.dirname(__file__), "pyramid_forksafe", "__init__.py")
+) as v_file:
+    VERSION = re.compile(r".*__VERSION__ = '(.*?)'", re.S).match(v_file.read()).group(1)
 
 
-requires = [
-    "pyramid",
-    "zope.interface",  # should be in pyramid
-]
+requires = ["pyramid", "zope.interface"]  # should be in pyramid
 
 setup(
     name="pyramid_forksafe",
@@ -50,7 +43,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    tests_require = requires,
-    install_requires = requires,
-    test_suite='tests',
+    tests_require=requires,
+    install_requires=requires,
+    test_suite="tests",
 )

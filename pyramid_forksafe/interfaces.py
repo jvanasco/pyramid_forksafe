@@ -1,7 +1,4 @@
-from zope.interface import (
-    Attribute,
-    Interface,
-    )
+from zope.interface import Attribute, Interface
 
 
 # ==============================================================================
@@ -14,7 +11,8 @@ class IApplicationPostFork(Interface):
     See the documentation attached to
     :class:`pyramid_forksafe.events.ApplicationPostFork` for more information.
     """
-    registry = Attribute('Forked application registry')
+
+    registry = Attribute("Forked application registry")
 
 
 class IApplicationPreFork(Interface):
@@ -24,7 +22,8 @@ class IApplicationPreFork(Interface):
     See the documentation attached to
     :class:`pyramid_forksafe.events.ApplicationPreFork` for more information.
     """
-    registry = Attribute('Forked application registry')
+
+    registry = Attribute("Forked application registry")
 
 
 class IApplicationPostWorkerInit(Interface):
@@ -34,10 +33,8 @@ class IApplicationPostWorkerInit(Interface):
     See the documentation attached to
     :class:`pyramid_forksafe.events.ApplicationPostFork` for more information.
     """
-    registry = Attribute('Forked application registry')
+
+    registry = Attribute("Forked application registry")
 
 
-__all__ = ('IApplicationPostFork',
-           'IApplicationPreFork',
-           'IApplicationPostWorkerInit',
-           )
+__all__ = ("IApplicationPostFork", "IApplicationPreFork", "IApplicationPostWorkerInit")
