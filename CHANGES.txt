@@ -1,6 +1,9 @@
 Unreleased
 - v0.1.3dev
 - black
+	* upgraded black; 20.8b1
+	* integrated with pre-commit
+
 
 2019.05.01
 - v0.1.2

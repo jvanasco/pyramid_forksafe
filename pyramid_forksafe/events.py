@@ -16,7 +16,7 @@ from .interfaces import (
 
 @implementer(IApplicationPostFork)
 class ApplicationPostFork(object):
-    """ An instance of this class is emitted as an :term:`event` when
+    """An instance of this class is emitted as an :term:`event` when
     the application forks is
     called.
 
@@ -36,7 +36,7 @@ class ApplicationPostFork(object):
 
 @implementer(IApplicationPreFork)
 class ApplicationPreFork(object):
-    """ An instance of this class is emitted as an :term:`event` when
+    """An instance of this class is emitted as an :term:`event` when
     the application forks is called.
 
     Called just before a worker has been forked.
@@ -55,7 +55,7 @@ class ApplicationPreFork(object):
 
 @implementer(IApplicationPostWorkerInit)
 class ApplicationPostWorkerInit(object):
-    """ An instance of this class is emitted as an :term:`event` when
+    """An instance of this class is emitted as an :term:`event` when
     the application forks is called.
 
     Called just after a worker has initialized the application
