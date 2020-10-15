@@ -9,6 +9,7 @@ except ImportError as e:
     postfork = None
 
 # local
+from pyramid_forksafe import registry_setup
 from pyramid_forksafe.events import ApplicationPostFork
 
 
@@ -16,7 +17,13 @@ from pyramid_forksafe.events import ApplicationPostFork
 
 
 def includeme(config):
-    log.debug("Configuring ApplicationPostFork(uWSGI)")
+    log.debug("Configuring ApplicationPostFork(uWSGI) - includeme")
+    registry_setup(config)
+    configure(config)
+
+
+def configure(config):
+    log.debug("Configuring ApplicationPostFork(uWSGI) - configure")
 
     if postfork is None:
         log.debug("Could not setup for uWSGI environment")
@@ -43,4 +50,7 @@ def includeme(config):
         config.registry.pyramid_forksafe["status"] = "uWSGI hook configured"
 
 
-__all__ = ("includeme",)
+__all__ = (
+    "includeme",
+    "configure",
+)

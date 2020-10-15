@@ -1,6 +1,8 @@
 pyramid_forksafe
 ================
 
+Build Status: ![Python package](https://github.com/jvanasco/pyramid_forksafe/workflows/Python%20package/badge.svg)
+
 This package creates standardized Pyramid events for various forking hooks in popular deployment containers.
 
 Using `pyramid_forksafe` allows a developer to write generic routines for forking events, allowing them to easily swap containers during deployment or development.
@@ -26,9 +28,16 @@ This blog posting describes the difference between fork-safe and thread-safe pre
 
 Define a GENERIC hook.  
 
-    def post_fork_hook(_registry):
+	from pyramid_forksafe.events import ApplicationPostFork
+
+    def post_fork_hook(event):
+    	"""
+    	The event has an attribute for the Pyramid Application's `registry`
+    		`event.registry`
+    	""""
         cyrpto_atfork()
-        models.engine.dispose(_registry)
+        models.engine.dispose()
+
     config.add_subscriber(post_fork_hook, ApplicationPostFork)
 
 You can import the generic package in your `environment.ini` file (or main config), and this will try to enable services if possible:

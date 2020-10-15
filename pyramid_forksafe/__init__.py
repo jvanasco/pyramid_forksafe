@@ -3,10 +3,25 @@ import logging
 log = logging.getLogger(__name__)
 
 
-__VERSION__ = "0.1.3dev"
+__VERSION__ = "0.1.3dev0"
 
 
 # ==============================================================================
+
+
+def registry_setup(config):
+    """
+    This function does the initial setup.
+    Originally it was part of `includeme`, but has been migrated away so
+    per-container setups can be used instead.
+    """
+    log.debug("registry_setup")
+    config.registry.pyramid_forksafe = {
+        "status": "attempting auto-configure",
+        "autoconfigure.log": [],
+        "environment": None,
+        "executed_hooks": set([]),
+    }
 
 
 def includeme(config):
@@ -17,19 +32,14 @@ def includeme(config):
 
     gunicorn must run with the hooks enabled in it's own startup
     """
+    registry_setup(config)
     log.debug("attempting auto-configure")
-    config.registry.pyramid_forksafe = {
-        "status": "attempting auto-configure",
-        "autoconfigure.log": [],
-        "environment": None,
-        "executed_hooks": set([]),
-    }
     # uWSGI autoconfiguration
     try:
         log.debug("attempting to autoconfigure uWSGI")
         import pyramid_forksafe.containers.uwsgi
 
-        pyramid_forksafe.containers.uwsgi.includeme(config)
+        pyramid_forksafe.containers.uwsgi.configure(config)
 
         log.debug("- uWSGI no error")
     except Exception as exc:
@@ -40,4 +50,4 @@ def includeme(config):
         log.error("- uWSGI EXCEPTION | %s", exc)
 
 
-__all__ = ("__VERSION__", "includeme")
+__all__ = ("__VERSION__", "includeme", "registry_setup")

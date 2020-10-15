@@ -19,7 +19,11 @@ class PyramidForksafeDebugPanel(DebugPanel):
     _cookie_names = None
 
     def __init__(self, request):
-        self.data = {"registry_data": request.registry.pyramid_forksafe}
+        if hasattr(request.registry, "pyramid_forksafe"):
+            self.data = {"registry_data": request.registry.pyramid_forksafe}
+        else:
+            # this can happen if we include the toolbar, but not the library
+            self.data = {"registry_data": None}
 
     @property
     def nav_title(self):
