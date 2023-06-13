@@ -1,15 +1,17 @@
-from __future__ import print_function
+# stdlib
+from typing import TYPE_CHECKING
 
 # pypi
-from zope.interface import implementer
+from zope.interface import implementer  # type: ignore[import]
 
 # local
-from .interfaces import (
-    IApplicationPostFork,
-    IApplicationPreFork,
-    IApplicationPostWorkerInit,
-)
+from .interfaces import IApplicationPostFork
+from .interfaces import IApplicationPostWorkerInit
+from .interfaces import IApplicationPreFork
 
+# typing
+if TYPE_CHECKING:
+    from pyramid.registry import Registry  # type: ignore[import]
 
 # ==============================================================================
 
@@ -29,7 +31,7 @@ class ApplicationPostFork(object):
     :class:`pyramid_forksafe.interfaces.IApplicationPostFork` interface.
     """
 
-    def __init__(self, registry):
+    def __init__(self, registry: "Registry"):
         print("ApplicationPostFork")
         self.registry = registry
 
@@ -48,7 +50,7 @@ class ApplicationPreFork(object):
     :class:`pyramid_forksafe.interfaces.IApplicationPreFork` interface.
     """
 
-    def __init__(self, registry):
+    def __init__(self, registry: "Registry"):
         print("ApplicationPreFork")
         self.registry = registry
 
@@ -67,9 +69,13 @@ class ApplicationPostWorkerInit(object):
     :class:`pyramid_forksafe.interfaces.IApplicationPostWorkerInit` interface.
     """
 
-    def __init__(self, registry):
+    def __init__(self, registry: "Registry"):
         print("ApplicationPostWorkerInit")
         self.registry = registry
 
 
-__all__ = ("ApplicationPostFork", "ApplicationPreFork", "ApplicationPostWorkerInit")
+__all__ = (
+    "ApplicationPostFork",
+    "ApplicationPreFork",
+    "ApplicationPostWorkerInit",
+)

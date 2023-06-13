@@ -1,4 +1,5 @@
-from zope.interface import Attribute, Interface
+from zope.interface import Attribute  # type: ignore[import]
+from zope.interface import Interface  # type: ignore[import]
 
 
 # ==============================================================================
@@ -37,4 +38,8 @@ class IApplicationPostWorkerInit(Interface):
     registry = Attribute("Forked application registry")
 
 
-__all__ = ("IApplicationPostFork", "IApplicationPreFork", "IApplicationPostWorkerInit")
+__all__ = (
+    "IApplicationPostFork",
+    "IApplicationPreFork",
+    "IApplicationPostWorkerInit",
+)
