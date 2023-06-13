@@ -1,28 +1,35 @@
+# stdlib
 import logging
-
-log = logging.getLogger(__name__)
+from typing import TYPE_CHECKING
 
 # pypi
 try:
-    from uwsgidecorators import postfork
-except ImportError as e:
+    from uwsgidecorators import postfork  # type: ignore[import]
+except ImportError:
     postfork = None
 
 # local
 from pyramid_forksafe import registry_setup
 from pyramid_forksafe.events import ApplicationPostFork
 
+# typing
+if TYPE_CHECKING:
+    from pyramid.config import Configurator  # type: ignore[import]
 
 # ==============================================================================
 
+log = logging.getLogger(__name__)
 
-def includeme(config):
+# ------------------------------------------------------------------------------
+
+
+def includeme(config: "Configurator") -> None:
     log.debug("Configuring ApplicationPostFork(uWSGI) - includeme")
     registry_setup(config)
     configure(config)
 
 
-def configure(config):
+def configure(config: "Configurator") -> None:
     log.debug("Configuring ApplicationPostFork(uWSGI) - configure")
 
     if postfork is None:
@@ -51,6 +58,6 @@ def configure(config):
 
 
 __all__ = (
-    "includeme",
     "configure",
+    "includeme",
 )

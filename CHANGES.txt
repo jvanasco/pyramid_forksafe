@@ -1,5 +1,7 @@
-unreleased
-	* added tests/__init__.py
+0.2.0
+    * drop python 2.7
+    * initial typing support
+    * added tests/__init__.py
 
 2021.03.25
 - v0.1.4

@@ -1,20 +1,25 @@
+# stdlib
 import logging
-
-log = logging.getLogger(__name__)
-
+from typing import TYPE_CHECKING
 
 # local
-from pyramid_forksafe.events import (
-    ApplicationPostFork,
-    ApplicationPreFork,
-    ApplicationPostWorkerInit,
-)
+from pyramid_forksafe.events import ApplicationPostFork
+from pyramid_forksafe.events import ApplicationPostWorkerInit
+from pyramid_forksafe.events import ApplicationPreFork
 
+# typing
+if TYPE_CHECKING:
+    from pyramid.registry import Registry  # type: ignore[import]
+    from gunicorn.workers.base import Worker  # type: ignore[import]
 
 # ==============================================================================
 
+log = logging.getLogger(__name__)
 
-def mark_configured(registry):
+# ------------------------------------------------------------------------------
+
+
+def mark_configured(registry: "Registry") -> None:
     """utility for developers to update the status"""
     log.debug("mark_configured")
     registry.pyramid_forksafe["environment"] = "gunicorn"
@@ -22,7 +27,7 @@ def mark_configured(registry):
     registry.pyramid_forksafe["status"] = "gunicorn mark_configured"
 
 
-def pre_fork(server, worker):
+def pre_fork(server, worker: "Worker") -> None:
     log.debug("ApplicationPreFork(gunicorn) - pre_fork")
     registry = server.app.wsgi().registry
     registry.notify(ApplicationPreFork(registry))
@@ -31,7 +36,7 @@ def pre_fork(server, worker):
     )
 
 
-def post_fork(server, worker):
+def post_fork(server, worker: "Worker") -> None:
     log.debug("ApplicationPostFork(gunicorn) - post_fork")
     registry = server.app.wsgi().registry
     registry.notify(ApplicationPostFork(registry))
@@ -40,7 +45,7 @@ def post_fork(server, worker):
     )
 
 
-def post_worker_init(worker):
+def post_worker_init(worker: "Worker") -> None:
     log.debug("ApplicationPostWorkerInit(gunicorn) - post_worker_init")
     registry = worker.app.wsgi().registry
     registry.notify(ApplicationPostWorkerInit(registry))
@@ -49,4 +54,9 @@ def post_worker_init(worker):
     )
 
 
-__all__ = ("mark_configured", "pre_fork", "post_fork", "post_worker_init")
+__all__ = (
+    "mark_configured",
+    "post_fork",
+    "post_worker_init",
+    "pre_fork",
+)

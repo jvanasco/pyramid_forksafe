@@ -1,6 +1,14 @@
-from pyramid_debugtoolbar.panels import DebugPanel
+# stdlib
+from typing import TYPE_CHECKING
 
-_ = lambda x: x
+# pypi
+from pyramid_debugtoolbar.panels import DebugPanel  # type: ignore[import]
+
+# typing
+if TYPE_CHECKING:
+    from pyramid.request import Request  # type: ignore[import]
+
+# ==============================================================================
 
 
 class PyramidForksafeDebugPanel(DebugPanel):
@@ -18,7 +26,7 @@ class PyramidForksafeDebugPanel(DebugPanel):
     # stash
     _cookie_names = None
 
-    def __init__(self, request):
+    def __init__(self, request: "Request"):
         if hasattr(request.registry, "pyramid_forksafe"):
             self.data = {"registry_data": request.registry.pyramid_forksafe}
         else:
@@ -26,16 +34,16 @@ class PyramidForksafeDebugPanel(DebugPanel):
             self.data = {"registry_data": None}
 
     @property
-    def nav_title(self):
-        return _(self.name)
+    def nav_title(self) -> str:
+        return self.name
 
     @property
-    def title(self):
-        return _(self.name)
+    def title(self) -> str:
+        return self.name
 
     @property
-    def url(self):
+    def url(self) -> str:
         return ""
 
-    def render_content(self, request):
+    def render_content(self, request: "Request") -> str:
         return DebugPanel.render_content(self, request)

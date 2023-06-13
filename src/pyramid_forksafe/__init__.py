@@ -1,15 +1,23 @@
+# stydlib
 import logging
+from typing import TYPE_CHECKING
 
-log = logging.getLogger(__name__)
-
-
-__VERSION__ = "0.1.4"
-
+# typing
+if TYPE_CHECKING:
+    from pyramid.config import Configurator  # type: ignore[import]
 
 # ==============================================================================
 
+__VERSION__ = "0.2.0"
 
-def registry_setup(config):
+# ------------------------------------------------------------------------------
+
+log = logging.getLogger(__name__)
+
+# ------------------------------------------------------------------------------
+
+
+def registry_setup(config: "Configurator") -> None:
     """
     This function does the initial setup.
     Originally it was part of `includeme`, but has been migrated away so
@@ -24,7 +32,7 @@ def registry_setup(config):
     }
 
 
-def includeme(config):
+def includeme(config: "Configurator") -> None:
     """
     this will try to auto-detect supported containers
 
@@ -50,4 +58,8 @@ def includeme(config):
         log.error("- uWSGI EXCEPTION | %s", exc)
 
 
-__all__ = ("__VERSION__", "includeme", "registry_setup")
+__all__ = (
+    "__VERSION__",
+    "includeme",
+    "registry_setup",
+)
