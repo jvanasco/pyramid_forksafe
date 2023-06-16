@@ -9,8 +9,8 @@ from pyramid_forksafe.events import ApplicationPreFork
 
 # typing
 if TYPE_CHECKING:
-    from pyramid.registry import Registry  # type: ignore[import]
-    from gunicorn.workers.base import Worker  # type: ignore[import]
+    from pyramid.registry import Registry
+    from gunicorn.workers.base import Worker
 
 # ==============================================================================
 

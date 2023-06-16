@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 # typing
 if TYPE_CHECKING:
-    from pyramid.config import Configurator  # type: ignore[import]
+    from pyramid.config import Configurator
 
 # ==============================================================================
 
