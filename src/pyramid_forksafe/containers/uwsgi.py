@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 # pypi
 try:
-    from uwsgidecorators import postfork  # type: ignore[import]
+    from uwsgidecorators import postfork
 except ImportError:
     postfork = None
 
@@ -14,7 +14,7 @@ from pyramid_forksafe.events import ApplicationPostFork
 
 # typing
 if TYPE_CHECKING:
-    from pyramid.config import Configurator  # type: ignore[import]
+    from pyramid.config import Configurator
 
 # ==============================================================================
 

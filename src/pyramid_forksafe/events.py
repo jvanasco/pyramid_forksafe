@@ -2,7 +2,7 @@
 from typing import TYPE_CHECKING
 
 # pypi
-from zope.interface import implementer  # type: ignore[import]
+from zope.interface import implementer
 
 # local
 from .interfaces import IApplicationPostFork
@@ -11,7 +11,7 @@ from .interfaces import IApplicationPreFork
 
 # typing
 if TYPE_CHECKING:
-    from pyramid.registry import Registry  # type: ignore[import]
+    from pyramid.registry import Registry
 
 # ==============================================================================
 

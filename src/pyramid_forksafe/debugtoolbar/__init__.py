@@ -6,7 +6,7 @@ from .panels.forksafe import PyramidForksafeDebugPanel
 
 # typing
 if TYPE_CHECKING:
-    from pyramid.config import Configurator  # type: ignore[import]
+    from pyramid.config import Configurator
 
 # ==============================================================================
 

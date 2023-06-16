@@ -1,5 +1,5 @@
-from zope.interface import Attribute  # type: ignore[import]
-from zope.interface import Interface  # type: ignore[import]
+from zope.interface import Attribute
+from zope.interface import Interface
 
 
 # ==============================================================================
