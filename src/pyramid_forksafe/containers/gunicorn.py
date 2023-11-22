@@ -10,6 +10,7 @@ from pyramid_forksafe.events import ApplicationPreFork
 # typing
 if TYPE_CHECKING:
     from pyramid.registry import Registry
+    from gunicorn.arbiter import Arbiter
     from gunicorn.workers.base import Worker
 
 # ==============================================================================
@@ -27,7 +28,7 @@ def mark_configured(registry: "Registry") -> None:
     registry.pyramid_forksafe["status"] = "gunicorn mark_configured"
 
 
-def pre_fork(server, worker: "Worker") -> None:
+def pre_fork(server: "Arbiter", worker: "Worker") -> None:
     log.debug("ApplicationPreFork(gunicorn) - pre_fork")
     registry = server.app.wsgi().registry
     registry.notify(ApplicationPreFork(registry))
@@ -36,7 +37,7 @@ def pre_fork(server, worker: "Worker") -> None:
     )
 
 
-def post_fork(server, worker: "Worker") -> None:
+def post_fork(server: "Arbiter", worker: "Worker") -> None:
     log.debug("ApplicationPostFork(gunicorn) - post_fork")
     registry = server.app.wsgi().registry
     registry.notify(ApplicationPostFork(registry))
