@@ -3,8 +3,10 @@
 import os
 import re
 
-from setuptools import setup
 from setuptools import find_packages
+from setuptools import setup
+
+# ==============================================================================
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
@@ -51,6 +53,7 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "License :: OSI Approved :: MIT License",
     ],
     keywords="web pyramid fork uwsgi nginx",

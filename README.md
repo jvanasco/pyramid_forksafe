@@ -148,6 +148,7 @@ This should always show an error, because the debugtoolbar does not run under fo
 
 
 ## Status
+2024.04.09 - mypy
 2019.05.01 - debugtoolbar
 2019.04.30 - debug object
 2019.04.29 - Python3 Support. This has been production safe for uWSGI for a while now.
