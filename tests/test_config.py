@@ -1,17 +1,12 @@
-from __future__ import print_function
-from __future__ import unicode_literals
-
 # stdlib
 import re
 import unittest
-import pdb
 
 
 # pyramid testing requirements
 from pyramid import testing
-from pyramid.exceptions import ConfigurationError
-from pyramid.response import Response
 from pyramid.request import Request
+from pyramid.response import Response
 
 # local
 from pyramid_forksafe.events import ApplicationPostFork
