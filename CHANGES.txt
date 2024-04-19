@@ -1,3 +1,7 @@
+0.2.2- unreleased
+    * update some typing
+    * update test harness
+
 0.2.1
     * typing fix
     * added python 3.12

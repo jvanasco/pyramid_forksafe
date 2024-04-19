@@ -19,7 +19,7 @@ from pyramid_forksafe.events import ApplicationPostFork
 re_toolbar_link = re.compile(r'(?:href="http://localhost)(/_debug_toolbar/[\d]+)"')
 
 
-def empty_view(request):
+def empty_view(request: Request) -> Response:
     # create a view
     return Response(
         "<html><head></head><body>OK</body></html>", content_type="text/html"
@@ -38,11 +38,13 @@ def post_fork_hook(event):
     event.registry.pyramid_forksafe["_calls"] += 1
 
 
-class _TestDebugtoolbarPanel_Core(object):
-    def setUp(self, load_main_library=True):
-        """
-        base class for
-        """
+class _TestDebugtoolbarPanel_Core(unittest.TestCase):
+    def setUp(
+        self,
+        load_main_library: bool = True,
+    ):
+        if self.__class__ == _TestDebugtoolbarPanel_Core:
+            raise unittest.SkipTest("only run on subclass")
         self.config = config = testing.setUp()
         config.add_settings(
             {"debugtoolbar.includes": ["pyramid_forksafe.debugtoolbar"]}
@@ -97,21 +99,22 @@ class _TestDebugtoolbarPanel_Core(object):
         )
 
 
-class TestDebugtoolbarPanel_Incorrect(_TestDebugtoolbarPanel_Core, unittest.TestCase):
+class TestDebugtoolbarPanel_Incorrect(_TestDebugtoolbarPanel_Core):
     def setUp(self):
         _TestDebugtoolbarPanel_Core.setUp(self, load_main_library=False)
 
 
-class TestDebugtoolbarPanel_Correct(_TestDebugtoolbarPanel_Core, unittest.TestCase):
+class TestDebugtoolbarPanel_Correct(_TestDebugtoolbarPanel_Core):
     def setUp(self):
         _TestDebugtoolbarPanel_Core.setUp(self, load_main_library=True)
 
 
-class _TestInvoked_Base(object):
-
-    include_file = None
+class _TestInvoked_Base(unittest.TestCase):
+    include_file: str
 
     def setUp(self):
+        if self.__class__ == _TestInvoked_Base:
+            raise unittest.SkipTest("only run on subclass")
         self.config = config = testing.setUp()
         config.add_settings(
             {"debugtoolbar.includes": ["pyramid_forksafe.debugtoolbar"]}
@@ -155,11 +158,9 @@ class _TestInvoked_Base(object):
         self.assertEqual(_count_post, 1)
 
 
-class TestInvoked_Generic(_TestInvoked_Base, unittest.TestCase):
-
+class TestInvoked_Generic(_TestInvoked_Base):
     include_file = "pyramid_forksafe"
 
 
-class TestInvoked_Uwsgi(_TestInvoked_Base, unittest.TestCase):
-
+class TestInvoked_Uwsgi(_TestInvoked_Base):
     include_file = "pyramid_forksafe.containers.uwsgi"
