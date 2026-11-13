@@ -62,8 +62,10 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.14"
+      - name: Install Redis
+        run: sudo apt-get update && sudo apt-get install -y redis-server
       - name: Install the package and servers
-        run: python -m pip install ".[testing]" "gunicorn==27.0.1" "uWSGI==2.0.31"
+        run: python -m pip install ".[testing]" "gunicorn==27.0.1" "uWSGI==2.0.31" "celery[redis]==5.7.0"
       - name: Exercise real server hooks
         env:
           FORKSAFE_LIVE_TESTS: "1"

@@ -1,3 +1,6 @@
+Unreleased
+    * Add opt-in Celery prefork lifecycle events and live worker coverage.
+
 1.0.0
     * Verify Gunicorn signals and uWSGI graceful reload in live server tests.
     * Add Gunicorn worker interrupt, abort, exit, and child exit events.

@@ -43,7 +43,11 @@ class LiveServer:
         env["FORKSAFE_TEST_EVENTS"] = str(self.journal)
         env["FORKSAFE_TEST_SERVER"] = name
         env["PYTHONPATH"] = os.pathsep.join(
-            [str(Path(__file__).resolve().parent), sysconfig.get_path("purelib")]
+            [
+                str(Path(__file__).resolve().parent),
+                str(Path(__file__).resolve().parents[1]),
+                sysconfig.get_path("purelib"),
+            ]
             + [
                 str(Path(path).resolve())
                 for path in env.get("PYTHONPATH", "").split(os.pathsep)
@@ -209,5 +213,81 @@ def test_uwsgi_graceful_reload(server_directory: Path) -> None:
         ]
         if server.events()[: len(expected)] != expected:
             server.fail("Unexpected uWSGI lifecycle events")
+    finally:
+        server.close()
+
+
+@pytest.fixture
+def celery_broker(
+    server_directory: Path, monkeypatch: "pytest.MonkeyPatch"
+) -> Iterator[None]:
+    """Start an isolated Redis broker on a private Unix socket."""
+    broker_dir = server_directory / "redis"
+    broker_dir.mkdir()
+    address = broker_dir / "broker.sock"
+    broker = LiveServer(
+        broker_dir,
+        "redis-server",
+        [
+            "--port",
+            "0",
+            "--unixsocket",
+            str(address),
+            "--save",
+            "",
+            "--appendonly",
+            "no",
+            "--locale-collate",
+            "C",
+        ],
+    )
+    try:
+        deadline = time.monotonic() + 10
+        while not address.exists():
+            if broker.process.poll() is not None or time.monotonic() >= deadline:
+                broker.fail("Redis did not create its Unix socket")
+            time.sleep(0.05)
+        monkeypatch.setenv("FORKSAFE_TEST_BROKER", "redis+socket://" + str(address))
+        yield
+    finally:
+        broker.close()
+
+
+def test_celery_prefork_lifecycle(server_directory: Path, celery_broker: None) -> None:
+    """Celery delivers prefork events in the parent and child processes."""
+    server = LiveServer(
+        server_directory,
+        "celery",
+        [
+            "-A",
+            "tests.celery_app:app",
+            "worker",
+            "--pool=prefork",
+            "--concurrency=1",
+            "--without-gossip",
+            "--without-mingle",
+            "--without-heartbeat",
+        ],
+    )
+    try:
+        parent = server.process.pid
+        child = server.wait_for_event("ApplicationPostWorkerInit")
+        assert child != parent
+        server.wait_for_event("worker_ready", parent)
+        server.process.send_signal(signal.SIGTERM)
+        server.wait_for_event("ApplicationWorkerExit", child)
+        try:
+            status = server.process.wait(timeout=15)
+        except subprocess.TimeoutExpired:
+            server.fail("Celery did not complete warm shutdown")
+            return
+        expected = [
+            ("ApplicationPreFork", parent),
+            ("ApplicationPostWorkerInit", child),
+            ("ApplicationWorkerExit", child),
+        ]
+        events = [entry for entry in server.events() if entry[0] != "worker_ready"]
+        if status != 0 or events != expected:
+            server.fail("Unexpected Celery lifecycle events or exit status")
     finally:
         server.close()

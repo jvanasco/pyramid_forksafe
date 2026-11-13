@@ -118,9 +118,32 @@ you can also update the debug tool by running after configuration:
 	mark_configured(config.registry)
 
 
+## Usage - Celery
+
+Install Celery 5.6 or later separately. In the Celery app module that the
+worker imports, build the Pyramid app and register the adapter before starting
+the worker's pool:
+
+    from pyramid_forksafe.containers.celery import configure
+
+    configure(config)
+
+Here, `config` is the Pyramid configurator for the app whose subscribers should
+receive the events. The adapter initializes the registry state if needed.
+Register in the worker parent on POSIX and start Celery with `--pool=prefork`
+and the `fork` start method. Celery's asynchronous prefork pool (used with a
+Redis broker, for example) emits `worker_before_create_process`. The blocking
+pool used with the in-memory broker omits that signal.
+Celery signals are process-wide, so register only the registries that should
+receive that worker's lifecycle events.
+
+Keep initialization subscribers short so the child can finish starting.
+Celery delivers the child shutdown signal on a best-effort basis.
+
 ## Container Support
 
-Currently `uwsgi` and `gunicorn` are supported with the hooks outlined below.   Celery integration is planned.  Pull requests are very welcome.
+uWSGI, Gunicorn, and Celery prefork workers are supported with the hooks outlined below.
+Pull requests are very welcome.
 
 
 | container | pyramid\_forksafe event      | container hook |
@@ -134,17 +157,20 @@ Currently `uwsgi` and `gunicorn` are supported with the hooks outlined below.   
 | Gunicorn | `ApplicationWorkerExit` | `worker_exit` (worker process) |
 | Gunicorn | `ApplicationChildExit` | `child_exit` (preloaded master process) |
 | uWSGI | `ApplicationWorkerExit` | `uwsgi.atexit` (opt-in, worker process) |
+| Celery | `ApplicationPreFork` | `worker_before_create_process` (parent process) |
+| Celery | `ApplicationPostWorkerInit` | `worker_process_init` (pool child) |
+| Celery | `ApplicationWorkerExit` | `worker_process_shutdown` (pool child) |
 
 
 ## Live server tests
 
-With Gunicorn and uWSGI installed and on `PATH`, run the live lifecycle
+With Gunicorn, uWSGI, Celery with Redis support, and `redis-server` installed and on `PATH`, run the live lifecycle
 tests in the project's test environment:
 
     FORKSAFE_LIVE_TESTS=1 python -m pytest -q tests/test_live_servers.py
 
-The tests start local servers on Unix sockets and verify which process
-delivers each event. GitHub Actions runs them in a dedicated Linux job.
+The tests start Gunicorn and uWSGI on local Unix sockets and use a temporary Redis
+broker on a private Unix socket for Celery. They verify which process delivers each event. GitHub Actions runs them in a dedicated Linux job.
 
 ## The Debug Object
 

@@ -11,6 +11,8 @@ exclude = '^(\.eggs|\.tox|build)/'
 
 [[tool.mypy.overrides]]
 module = [
+    "billiard",
+    "celery.*",
     "gunicorn.*",
     "pyramid.*",
     "pyramid_debugtoolbar.*",
