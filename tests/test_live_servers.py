@@ -10,7 +10,7 @@ import sysconfig
 import tempfile
 import time
 from pathlib import Path
-from typing import Iterator, List, Tuple
+from typing import Iterator, List, Mapping, Optional, Tuple
 
 import pytest
 
@@ -30,7 +30,13 @@ from pyramid_forksafe.containers.gunicorn import (
 class LiveServer:
     """Run one server and collect its lifecycle journal and logs."""
 
-    def __init__(self, directory: Path, name: str, arguments: List[str]) -> None:
+    def __init__(
+        self,
+        directory: Path,
+        name: str,
+        arguments: List[str],
+        env_overrides: Optional[Mapping[str, str]] = None,
+    ) -> None:
         executable = shutil.which(name)
         if executable is None:
             pytest.fail("{} is required for the live server tests".format(name))
@@ -60,6 +66,8 @@ class LiveServer:
                 "purelib", vars={"base": sys.base_prefix}
             )
             env["PYTHONPATH"] += os.pathsep + base_packages
+        if env_overrides is not None:
+            env.update(env_overrides)
         with self.log.open("wb") as output:
             self.process = subprocess.Popen(
                 [executable] + arguments,
@@ -237,9 +245,8 @@ def celery_broker(
             "",
             "--appendonly",
             "no",
-            "--locale-collate",
-            "C",
         ],
+        env_overrides={"LC_ALL": "C"},
     )
     try:
         deadline = time.monotonic() + 10
