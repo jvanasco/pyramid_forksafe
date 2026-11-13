@@ -1,7 +1,6 @@
 from zope.interface import Attribute
 from zope.interface import Interface
 
-
 # ==============================================================================
 
 
@@ -38,7 +37,35 @@ class IApplicationPostWorkerInit(Interface):
     registry = Attribute("Forked application registry")
 
 
+class IApplicationWorkerInterrupt(Interface):
+    """Emitted when Gunicorn calls its worker interrupt hook."""
+
+    registry = Attribute("Application registry")
+
+
+class IApplicationWorkerAbort(Interface):
+    """Emitted when Gunicorn calls its worker abort hook."""
+
+    registry = Attribute("Application registry")
+
+
+class IApplicationWorkerExit(Interface):
+    """Emitted when A server calls its exit hook in a worker process."""
+
+    registry = Attribute("Application registry")
+
+
+class IApplicationChildExit(Interface):
+    """Emitted when The Gunicorn master reaps a worker."""
+
+    registry = Attribute("Application registry")
+
+
 __all__ = (
+    "IApplicationWorkerInterrupt",
+    "IApplicationWorkerAbort",
+    "IApplicationWorkerExit",
+    "IApplicationChildExit",
     "IApplicationPostFork",
     "IApplicationPreFork",
     "IApplicationPostWorkerInit",

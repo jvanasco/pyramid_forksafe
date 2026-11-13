@@ -14,6 +14,7 @@ module = [
     "gunicorn.*",
     "pyramid.*",
     "pyramid_debugtoolbar.*",
+    "uwsgi",
     "uwsgidecorators.*",
     "webtest.*",
     "zope.interface.*",

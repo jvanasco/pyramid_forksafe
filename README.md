@@ -69,6 +69,21 @@ important note:
 
 you MUST run uWSGI with the `--master` argument.
 
+With `lazy-apps`, the Pyramid app loads after the worker forks, so an
+app-registered `postfork` callback cannot observe that fork.
+
+To subscribe to worker exits, register the exit callback after including
+`pyramid_forksafe`:
+
+    from pyramid_forksafe.containers.uwsgi import configure_worker_exit
+
+    config.include("pyramid_forksafe")
+    configure_worker_exit(config)
+
+This emits `ApplicationWorkerExit` in worker processes and preserves any
+previous `uwsgi.atexit` callback. uWSGI may skip the callback for busy or
+async workers. Forced termination can also prevent cleanup.
+
 
 ## Usage - gunicorn
 
@@ -84,9 +99,18 @@ then your `config.py` just needs to import the container hooks:
         pre_fork,
         post_fork,
         post_worker_init,
+        worker_int,
+        worker_abort,
+        worker_exit,
+        child_exit,
     )
 
-those hooks are written to the `gunicorn` api, and will invoke the notification
+Import the hooks you want to enable. Use `preload_app = True` when
+registering `pre_fork` so the application is already loaded in the master.
+`child_exit` runs in the master and only emits an event with a preloaded
+Pyramid app. `worker_int`, `worker_abort`, and `worker_exit` use the app
+already initialized in the worker. Keep signal subscribers short and avoid
+blocking operations. A forced kill can bypass worker-side callbacks.
 
 you can also update the debug tool by running after configuration:
 
@@ -105,6 +129,11 @@ Currently `uwsgi` and `gunicorn` are supported with the hooks outlined below.   
 | gunicorn  | `ApplicationPostFork`       | [`post_fork`](http://docs.gunicorn.org/en/latest/settings.html#post-fork) |
 | gunicorn  | `ApplicationPreFork`        | [`pre_fork`](http://docs.gunicorn.org/en/latest/settings.html#pre-fork) |
 | gunicorn  | `ApplicationPostWorkerInit` | [`post_worker_init`](http://docs.gunicorn.org/en/latest/settings.html#post-worker-init) |
+| Gunicorn | `ApplicationWorkerInterrupt` | `worker_int` (SIGINT or SIGQUIT) |
+| Gunicorn | `ApplicationWorkerAbort` | `worker_abort` (SIGABRT, commonly a timeout) |
+| Gunicorn | `ApplicationWorkerExit` | `worker_exit` (worker process) |
+| Gunicorn | `ApplicationChildExit` | `child_exit` (preloaded master process) |
+| uWSGI | `ApplicationWorkerExit` | `uwsgi.atexit` (opt-in, worker process) |
 
 
 ## The Debug Object
