@@ -136,6 +136,16 @@ Currently `uwsgi` and `gunicorn` are supported with the hooks outlined below.   
 | uWSGI | `ApplicationWorkerExit` | `uwsgi.atexit` (opt-in, worker process) |
 
 
+## Live server tests
+
+With Gunicorn and uWSGI installed and on `PATH`, run the live lifecycle
+tests in the project's test environment:
+
+    FORKSAFE_LIVE_TESTS=1 python -m pytest -q tests/test_live_servers.py
+
+The tests start local servers on Unix sockets and verify which process
+delivers each event. GitHub Actions runs them in a dedicated Linux job.
+
 ## The Debug Object
 
 including this package will put an informative dict into `registry.pyramid_forksafe`

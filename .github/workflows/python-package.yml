@@ -52,3 +52,19 @@ jobs:
         with:
           name: coverage-py${{ matrix.python-version }}
           path: htmlcov/
+
+  live-servers:
+    name: Live server lifecycle tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+      - name: Install the package and servers
+        run: python -m pip install ".[testing]" "gunicorn==27.0.1" "uWSGI==2.0.31"
+      - name: Exercise real server hooks
+        env:
+          FORKSAFE_LIVE_TESTS: "1"
+        run: python -m pytest -q tests/test_live_servers.py
