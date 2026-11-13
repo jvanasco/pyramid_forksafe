@@ -69,6 +69,21 @@ important note:
 
 you MUST run uWSGI with the `--master` argument.
 
+With `lazy-apps`, the Pyramid app loads after the worker forks, so an
+app-registered `postfork` callback cannot observe that fork.
+
+To subscribe to worker exits, register the exit callback after including
+`pyramid_forksafe`:
+
+    from pyramid_forksafe.containers.uwsgi import configure_worker_exit
+
+    config.include("pyramid_forksafe")
+    configure_worker_exit(config)
+
+This emits `ApplicationWorkerExit` in worker processes and preserves any
+previous `uwsgi.atexit` callback. uWSGI may skip the callback for busy or
+async workers. Forced termination can also prevent cleanup.
+
 
 ## Usage - gunicorn
 
@@ -84,9 +99,18 @@ then your `config.py` just needs to import the container hooks:
         pre_fork,
         post_fork,
         post_worker_init,
+        worker_int,
+        worker_abort,
+        worker_exit,
+        child_exit,
     )
 
-those hooks are written to the `gunicorn` api, and will invoke the notification
+Import the hooks you want to enable. Use `preload_app = True` when
+registering `pre_fork` so the application is already loaded in the master.
+`child_exit` runs in the master and only emits an event with a preloaded
+Pyramid app. `worker_int`, `worker_abort`, and `worker_exit` use the app
+already initialized in the worker. Keep signal subscribers short and avoid
+blocking operations. A forced kill can bypass worker-side callbacks.
 
 you can also update the debug tool by running after configuration:
 
@@ -94,9 +118,32 @@ you can also update the debug tool by running after configuration:
 	mark_configured(config.registry)
 
 
+## Usage - Celery
+
+Install Celery 5.6 or later separately. In the Celery app module that the
+worker imports, build the Pyramid app and register the adapter before starting
+the worker's pool:
+
+    from pyramid_forksafe.containers.celery import configure
+
+    configure(config)
+
+Here, `config` is the Pyramid configurator for the app whose subscribers should
+receive the events. The adapter initializes the registry state if needed.
+Register in the worker parent on POSIX and start Celery with `--pool=prefork`
+and the `fork` start method. Celery's asynchronous prefork pool (used with a
+Redis broker, for example) emits `worker_before_create_process`. The blocking
+pool used with the in-memory broker omits that signal.
+Celery signals are process-wide, so register only the registries that should
+receive that worker's lifecycle events.
+
+Keep initialization subscribers short so the child can finish starting.
+Celery delivers the child shutdown signal on a best-effort basis.
+
 ## Container Support
 
-Currently `uwsgi` and `gunicorn` are supported with the hooks outlined below.   Celery integration is planned.  Pull requests are very welcome.
+uWSGI, Gunicorn, and Celery prefork workers are supported with the hooks outlined below.
+Pull requests are very welcome.
 
 
 | container | pyramid\_forksafe event      | container hook |
@@ -105,7 +152,25 @@ Currently `uwsgi` and `gunicorn` are supported with the hooks outlined below.   
 | gunicorn  | `ApplicationPostFork`       | [`post_fork`](http://docs.gunicorn.org/en/latest/settings.html#post-fork) |
 | gunicorn  | `ApplicationPreFork`        | [`pre_fork`](http://docs.gunicorn.org/en/latest/settings.html#pre-fork) |
 | gunicorn  | `ApplicationPostWorkerInit` | [`post_worker_init`](http://docs.gunicorn.org/en/latest/settings.html#post-worker-init) |
+| Gunicorn | `ApplicationWorkerInterrupt` | `worker_int` (SIGINT or SIGQUIT) |
+| Gunicorn | `ApplicationWorkerAbort` | `worker_abort` (SIGABRT, commonly a timeout) |
+| Gunicorn | `ApplicationWorkerExit` | `worker_exit` (worker process) |
+| Gunicorn | `ApplicationChildExit` | `child_exit` (preloaded master process) |
+| uWSGI | `ApplicationWorkerExit` | `uwsgi.atexit` (opt-in, worker process) |
+| Celery | `ApplicationPreFork` | `worker_before_create_process` (parent process) |
+| Celery | `ApplicationPostWorkerInit` | `worker_process_init` (pool child) |
+| Celery | `ApplicationWorkerExit` | `worker_process_shutdown` (pool child) |
 
+
+## Live server tests
+
+With Gunicorn, uWSGI, Celery with Redis support, and `redis-server` installed and on `PATH`, run the live lifecycle
+tests in the project's test environment:
+
+    FORKSAFE_LIVE_TESTS=1 python -m pytest -q tests/test_live_servers.py
+
+The tests start Gunicorn and uWSGI on local Unix sockets and use a temporary Redis
+broker on a private Unix socket for Celery. They verify which process delivers each event. GitHub Actions runs them in a dedicated Linux job.
 
 ## The Debug Object
 

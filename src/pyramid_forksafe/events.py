@@ -9,6 +9,11 @@ from .interfaces import IApplicationPostFork
 from .interfaces import IApplicationPostWorkerInit
 from .interfaces import IApplicationPreFork
 
+from .interfaces import IApplicationWorkerInterrupt
+from .interfaces import IApplicationWorkerAbort
+from .interfaces import IApplicationWorkerExit
+from .interfaces import IApplicationChildExit
+
 # typing
 if TYPE_CHECKING:
     from pyramid.registry import Registry
@@ -74,7 +79,43 @@ class ApplicationPostWorkerInit(object):
         self.registry = registry
 
 
+@implementer(IApplicationWorkerInterrupt)
+class ApplicationWorkerInterrupt:
+    """Emitted when Gunicorn calls its worker interrupt hook."""
+
+    def __init__(self, registry: "Registry") -> None:
+        self.registry = registry
+
+
+@implementer(IApplicationWorkerAbort)
+class ApplicationWorkerAbort:
+    """Emitted when Gunicorn calls its worker abort hook."""
+
+    def __init__(self, registry: "Registry") -> None:
+        self.registry = registry
+
+
+@implementer(IApplicationWorkerExit)
+class ApplicationWorkerExit:
+    """Emitted when A server calls its exit hook in a worker process."""
+
+    def __init__(self, registry: "Registry") -> None:
+        self.registry = registry
+
+
+@implementer(IApplicationChildExit)
+class ApplicationChildExit:
+    """Emitted when The Gunicorn master reaps a worker."""
+
+    def __init__(self, registry: "Registry") -> None:
+        self.registry = registry
+
+
 __all__ = (
+    "ApplicationWorkerInterrupt",
+    "ApplicationWorkerAbort",
+    "ApplicationWorkerExit",
+    "ApplicationChildExit",
     "ApplicationPostFork",
     "ApplicationPreFork",
     "ApplicationPostWorkerInit",

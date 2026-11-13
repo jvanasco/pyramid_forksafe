@@ -1,8 +1,13 @@
 # stdlib
 import logging
-from typing import TYPE_CHECKING
+import os
+from typing import Any, TYPE_CHECKING, Type, Union
 
 # local
+from pyramid_forksafe.events import ApplicationChildExit
+from pyramid_forksafe.events import ApplicationWorkerAbort
+from pyramid_forksafe.events import ApplicationWorkerExit
+from pyramid_forksafe.events import ApplicationWorkerInterrupt
 from pyramid_forksafe.events import ApplicationPostFork
 from pyramid_forksafe.events import ApplicationPostWorkerInit
 from pyramid_forksafe.events import ApplicationPreFork
@@ -55,7 +60,61 @@ def post_worker_init(worker: "Worker") -> None:
     )
 
 
+def _notify_loaded_app(
+    app: Any,
+    event_type: Type[
+        Union[
+            ApplicationChildExit,
+            ApplicationWorkerAbort,
+            ApplicationWorkerExit,
+            ApplicationWorkerInterrupt,
+        ]
+    ],
+    hook: str,
+) -> None:
+    """Dispatch to a configured Pyramid registry on an already-loaded app."""
+    registry = getattr(app, "registry", None)
+    state = getattr(registry, "pyramid_forksafe", None)
+    if registry is None or state is None:
+        return
+
+    registry.notify(event_type(registry))
+    state["executed_hooks"].add(("containers.gunicorn." + hook, event_type.__name__))
+
+
+def worker_int(worker: "Worker") -> None:
+    """Notify the loaded worker app when Gunicorn handles SIGINT or SIGQUIT."""
+    _notify_loaded_app(
+        getattr(worker, "wsgi", None), ApplicationWorkerInterrupt, "worker_int"
+    )
+
+
+def worker_abort(worker: "Worker") -> None:
+    """Notify the loaded worker app when Gunicorn handles SIGABRT."""
+    _notify_loaded_app(
+        getattr(worker, "wsgi", None), ApplicationWorkerAbort, "worker_abort"
+    )
+
+
+def worker_exit(server: "Arbiter", worker: "Worker") -> None:
+    """Notify the loaded worker app from the exiting worker process."""
+    if worker.pid == os.getpid():
+        _notify_loaded_app(
+            getattr(worker, "wsgi", None), ApplicationWorkerExit, "worker_exit"
+        )
+
+
+def child_exit(server: "Arbiter", worker: "Worker") -> None:
+    """Notify the preloaded master app after Gunicorn reaps a worker."""
+    if server.cfg.preload_app:
+        _notify_loaded_app(server.app.callable, ApplicationChildExit, "child_exit")
+
+
 __all__ = (
+    "child_exit",
+    "worker_abort",
+    "worker_exit",
+    "worker_int",
     "mark_configured",
     "post_fork",
     "post_worker_init",

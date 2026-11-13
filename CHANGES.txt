@@ -1,4 +1,15 @@
-0.2.2- unreleased
+Unreleased
+    * Add opt-in Celery prefork lifecycle events and live worker coverage.
+
+1.0.0
+    * Verify Gunicorn signals and uWSGI graceful reload in live server tests.
+    * Add Gunicorn worker interrupt, abort, exit, and child exit events.
+    * Add opt-in uWSGI worker exit notifications and test both server adapters.
+    * Consolidate packaging, tox, and mypy configuration.
+    * Test Python 3.6 through 3.15 and publish HTML coverage in GitHub Actions.
+    * Keep Python 3.6 through 3.9 support for 1.0.0. Version 2.0.0 will
+      require Python 3.10 or later.
+    * Constrain setuptools on Python 3.7 through 3.9 for Pyramid compatibility.
     * update some typing
     * update test harness
 

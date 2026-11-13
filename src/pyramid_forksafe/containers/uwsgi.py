@@ -11,6 +11,7 @@ except ImportError:
 # local
 from pyramid_forksafe import registry_setup
 from pyramid_forksafe.events import ApplicationPostFork
+from pyramid_forksafe.events import ApplicationWorkerExit
 
 # typing
 if TYPE_CHECKING:
@@ -57,7 +58,38 @@ def configure(config: "Configurator") -> None:
         config.registry.pyramid_forksafe["status"] = "uWSGI hook configured"
 
 
+def configure_worker_exit(config: "Configurator") -> None:
+    """Register an opt-in uWSGI worker exit callback for this registry."""
+    try:
+        import uwsgi
+    except ImportError:
+        return
+
+    registry = config.registry
+    state = registry.pyramid_forksafe
+    if state.get("uwsgi_worker_exit_configured"):
+        return
+
+    previous = getattr(uwsgi, "atexit", None)
+
+    def worker_exit() -> None:
+        """Notify this registry on worker exit and invoke the previous callback."""
+        try:
+            if uwsgi.worker_id() > 0:
+                registry.notify(ApplicationWorkerExit(registry))
+                state["executed_hooks"].add(
+                    ("containers.uwsgi.worker_exit", "ApplicationWorkerExit")
+                )
+        finally:
+            if previous is not None:
+                previous()
+
+    uwsgi.atexit = worker_exit
+    state["uwsgi_worker_exit_configured"] = True
+
+
 __all__ = (
+    "configure_worker_exit",
     "configure",
     "includeme",
 )

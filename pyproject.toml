@@ -1,3 +1,24 @@
+[build-system]
+requires = ["setuptools>=40.9", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [tool.black]
 target-version = ['py36']
 
+[tool.mypy]
+check_untyped_defs = true
+exclude = '^(\.eggs|\.tox|build)/'
+
+[[tool.mypy.overrides]]
+module = [
+    "billiard",
+    "celery.*",
+    "gunicorn.*",
+    "pyramid.*",
+    "pyramid_debugtoolbar.*",
+    "uwsgi",
+    "uwsgidecorators.*",
+    "webtest.*",
+    "zope.interface.*",
+]
+ignore_missing_imports = true
