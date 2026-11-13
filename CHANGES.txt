@@ -1,4 +1,9 @@
-0.2.2- unreleased
+1.0.0 - unreleased
+    * Consolidate packaging, tox, and mypy configuration.
+    * Test Python 3.6 through 3.15 and publish HTML coverage in GitHub Actions.
+    * Keep Python 3.6 through 3.9 support for 1.0.0. Version 2.0.0 will
+      require Python 3.10 or later.
+    * Constrain setuptools on Python 3.7 through 3.9 for Pyramid compatibility.
     * update some typing
     * update test harness
 

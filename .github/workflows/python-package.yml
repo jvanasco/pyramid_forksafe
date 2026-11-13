@@ -1,46 +1,54 @@
-# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
-
 name: Python package
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
-  build:
-    name: core-tests--py-${{ matrix.python-version }}--${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+  test:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-24.04
     strategy:
+      fail-fast: false
       matrix:
-        os:
-          - "ubuntu-22.04"
-        python-version: 
-          - "3.7"
-          - "3.8"
-          - "3.9"
-          - "3.10"
-          - "3.11"
-          - "3.12"
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]
         include:
-          # ubuntu-latest[22.04] does not have: py27, py36
-          - os: "ubuntu-20.04"
-            python-version: "3.6"
-        pyramid-version: [">=2"]
+          - python-version: "3.6"
+            image: python:3.6.15-slim-bullseye
+          - python-version: "3.7"
+            image: python:3.7.17-slim-bullseye
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install --upgrade tox setuptools flake8 pytest mypy
-        pip freeze
-    - name: Test with pytest
-      run: |
-        # tox is used to run pytest
-        tox -e py -- ${{ matrix.pytest-args }}
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        if: ${{ !matrix.image }}
+        with:
+          python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
+      - name: Test the wheel and generate coverage
+        env:
+          PYTHON_IMAGE: ${{ matrix.image }}
+        run: |
+          test_command='
+            python --version
+            python -m pip wheel --no-deps --wheel-dir wheelhouse .
+            set -- wheelhouse/*.whl
+            python -m pip install "$1[testing]"
+            python -m coverage run --source=pyramid_forksafe -m pytest
+            python -m coverage html
+          '
+          if [ -n "$PYTHON_IMAGE" ]; then
+            docker run --rm --volume "$PWD:/project" --workdir /project \
+              "$PYTHON_IMAGE" sh -ec "$test_command"
+          else
+            sh -ec "$test_command"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: coverage-py${{ matrix.python-version }}
+          path: htmlcov/
