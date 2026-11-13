@@ -1,4 +1,5 @@
 Unreleased
+    * Use explicit package data to include the Debug Toolbar template without a setuptools warning.
     * Add opt-in Celery prefork lifecycle events and live worker coverage.
 
 1.0.0
